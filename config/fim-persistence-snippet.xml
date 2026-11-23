@@ -1,0 +1,13 @@
+<!--
+  Real-time FIM on the places Linux attackers plant persistence.
+  Append to the END of /var/ossec/etc/ossec.conf, then restart wazuh-manager.
+  (Real-time monitoring works on directories, so files like /etc/passwd are covered
+   by log rules instead.)
+-->
+<ossec_config>
+  <syscheck>
+    <directories realtime="yes" check_all="yes" report_changes="yes">/etc/cron.d,/var/spool/cron/crontabs,/etc/sudoers.d</directories>
+    <directories realtime="yes" check_all="yes">/etc/systemd/system</directories>
+    <directories realtime="yes" check_all="yes" report_changes="yes" restrict="authorized_keys$">/root,/home</directories>
+  </syscheck>
+</ossec_config>
