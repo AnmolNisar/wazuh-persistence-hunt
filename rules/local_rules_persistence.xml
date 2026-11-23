@@ -1,0 +1,58 @@
+<!--
+  Linux persistence detections (MITRE ATT&CK, Persistence / Privilege Escalation).
+  Append to /var/ossec/etc/rules/local_rules.xml.
+
+  Built-in parents used:
+    5902 = New user added to the system (from journald/auth logs)
+    550  = FIM: file modified      554 = FIM: file added
+-->
+<group name="local,persistence,">
+
+  <!-- T1136.001: a new account with UID 0 is a root-equivalent backdoor (checked first) -->
+  <rule id="100305" level="15">
+    <if_sid>5902</if_sid>
+    <field name="uid">^0$</field>
+    <description>Persistence: new account with UID 0 (root-equivalent) created: $(dstuser).</description>
+    <mitre><id>T1136.001</id></mitre>
+  </rule>
+
+  <!-- T1136.001: any new local account -->
+  <rule id="100304" level="12">
+    <if_sid>5902</if_sid>
+    <description>Persistence: new local account created: $(dstuser).</description>
+    <mitre><id>T1136.001</id></mitre>
+  </rule>
+
+  <!-- T1053.003: cron job added or changed -->
+  <rule id="100300" level="12">
+    <if_sid>550, 554</if_sid>
+    <match>/etc/cron|/var/spool/cron</match>
+    <description>Persistence: cron job created or modified ($(file)).</description>
+    <mitre><id>T1053.003</id></mitre>
+  </rule>
+
+  <!-- T1543.002: systemd service unit added or changed -->
+  <rule id="100301" level="12">
+    <if_sid>550, 554</if_sid>
+    <match>/etc/systemd/system/</match>
+    <description>Persistence: systemd unit created or modified ($(file)).</description>
+    <mitre><id>T1543.002</id></mitre>
+  </rule>
+
+  <!-- T1098.004: SSH authorized_keys added or changed -->
+  <rule id="100302" level="12">
+    <if_sid>550, 554</if_sid>
+    <match>authorized_keys</match>
+    <description>Persistence: SSH authorized_keys created or modified ($(file)).</description>
+    <mitre><id>T1098.004</id></mitre>
+  </rule>
+
+  <!-- T1548.003: sudoers changed (privilege escalation / persistence) -->
+  <rule id="100303" level="12">
+    <if_sid>550, 554</if_sid>
+    <match>/etc/sudoers</match>
+    <description>Privilege escalation: sudoers configuration created or modified ($(file)).</description>
+    <mitre><id>T1548.003</id></mitre>
+  </rule>
+
+</group>
